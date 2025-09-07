@@ -1,0 +1,293 @@
+#include <iostream>
+#include <limits>
+using namespace std;
+
+struct sDate {
+	short Day;
+	short Month;
+	short Year;
+};
+
+bool IsLeapYear(short Year) {
+
+	return (Year % 4 == 0 && Year % 100 != 0) || (Year % 400 == 0);
+}
+
+short DaysInMonth(short Month, short Year) {
+
+	short DaysMonth[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+	return (Month == 2) ? (IsLeapYear(Year)? 29 : 28) : DaysMonth[Month - 1];
+}
+
+
+bool IsLastDayInMonth(sDate Date) {
+	return (Date.Day == DaysInMonth(Date.Month, Date.Year));
+}
+
+bool IsLastMonthInYear(short Month) {
+	return (Month == 12);
+}
+
+sDate IncreaseDateByOneDay(sDate Date) {
+
+
+	if (IsLastDayInMonth(Date)) {
+
+		if (IsLastMonthInYear(Date.Month)) {
+
+			Date.Day = 1;
+			Date.Month = 1;
+			Date.Year++;
+		}
+		else {
+			Date.Day = 1;
+			Date.Month++;
+		}
+	}
+	else {
+		Date.Day++;
+	}
+	return Date;
+}
+
+sDate IncreaseDateByXDays(sDate Date,short Days) {
+
+	for (short i = 1; i <= Days; i++) {
+
+		Date = IncreaseDateByOneDay(Date);
+	}
+	return Date;
+}
+
+sDate IncreaseDateByOneWeek(sDate Date) {
+
+	return IncreaseDateByXDays(Date, 7);
+}
+
+sDate IncreaseDateByXWeeks(sDate Date, short Weeks) {
+
+	for (short i = 1; i <= Weeks; i++) {
+		Date = IncreaseDateByOneWeek(Date);
+	}
+	return Date;
+}
+
+sDate IncreaseDateByOneMonth(sDate Date) {
+
+	if (IsLastMonthInYear(Date.Month)) {
+
+		Date.Month = 1;
+		Date.Year++;
+	}
+	else {
+		Date.Month++;
+	}
+
+	short NumberOfCurrentInMonth = DaysInMonth(Date.Month, Date.Year);
+	if (Date.Day > NumberOfCurrentInMonth) {
+		Date.Day = NumberOfCurrentInMonth;
+	}
+	return Date;
+
+}
+
+sDate IncreaseDateByXMonths(sDate Date, short Months) {
+
+	for (short i = 1; i <= Months; i++) {
+		Date = IncreaseDateByOneMonth(Date);
+	}
+	return Date;
+}
+
+sDate IncreaseDateByOneYear(sDate Date) {
+
+		Date.Year++;
+
+		if ((Date.Month == 2 && Date.Day==29) && !IsLeapYear(Date.Year)) {
+
+				Date.Day = 28;
+		}
+		return Date;	
+}
+
+sDate IncreaseDateByXYears(sDate Date, short Years) {
+
+	bool WasFeb29 = (Date.Month == 2 && Date.Day == 29);
+
+	for (short i = 1; i <= Years; i++) {
+		Date = IncreaseDateByOneYear(Date);
+	}
+
+	if (WasFeb29 && Date.Month == 2 && Date.Day == 28 && IsLeapYear(Date.Year)) {
+
+		Date.Day = 29;
+	}
+
+	return Date;
+}
+
+sDate IncreaseDateByXYearsFaster(sDate Date, short Years) {
+
+	 Date.Year += Years;
+
+	 if (Date.Month==2 && Date.Day==29 && !IsLeapYear(Date.Year)) {
+		 Date.Day = 28;
+	 }
+
+	 return Date;
+}
+
+sDate IncreaseDateByOneDecade(sDate Date) {
+
+	return IncreaseDateByXYearsFaster(Date, 10);
+}
+
+sDate IncreaseDateByXDecade(sDate Date, short Decades) {
+
+	for (short i = 1; i <= Decades; i++)
+		Date=IncreaseDateByOneDecade(Date);
+	return Date;
+}
+
+sDate IncreaseDateByXDecadeFaster(sDate Date, short Decades) {
+
+	Date.Year += Decades * 10;
+
+	if (Date.Month == 2 && Date.Day == 29 && !IsLeapYear(Date.Year)) {
+		Date.Day = 28;
+	}
+	return Date;
+}
+
+sDate IncreaseDateByOneCentury(sDate Date) {
+
+	return IncreaseDateByXDecadeFaster(Date, 10);
+}
+
+sDate IncreaseDateByOneMillennium(sDate Date) {
+
+	return IncreaseDateByXDecadeFaster(Date, 100);
+}
+
+short CheckToEnterNumberOnly(string str) {
+
+	short Num;
+	cout << str;
+	cin >> Num;
+
+	while (cin.fail()) {
+
+		cin.clear();
+		cin.ignore(std::numeric_limits < std:: streamsize > ::max(), '\n');
+
+		cout << "\nPlease enter only numbers. Maximum possible value is 32767.";
+		cout << str;
+		cin >> Num;
+	}
+	return Num;
+}
+short ReadYear() {
+
+	return	CheckToEnterNumberOnly("Enter a Year? ");
+}
+
+short ReadMonth() {
+
+	return CheckToEnterNumberOnly("Enter a Month? ");
+}
+
+short ReadDay() {
+
+	return CheckToEnterNumberOnly("Enter a Day? ");
+}
+
+bool CheckIsWrongDate(sDate Date) {
+
+	return (Date.Year < 1) ? true : 
+		(Date.Month < 1 || Date.Month >12) ? true : 
+		(Date.Day > DaysInMonth(Date.Month, Date.Year)) ? true : false;
+}
+
+sDate ReadFullDate() {
+
+	sDate Date;
+
+	Date.Day = ReadDay();
+	Date.Month = ReadMonth();
+	Date.Year = ReadYear();
+	cout << '\n';
+
+	while (CheckIsWrongDate(Date)) {
+
+		cout << "\nWorng Date Press Any Key to add new date...";
+		system("pause>0");
+		system("cls");
+	
+		Date.Day = ReadDay();
+		Date.Month = ReadMonth();
+		Date.Year = ReadYear();
+		cout << '\n';
+	}
+
+	return Date;
+}
+
+int main() {
+
+	sDate Date = ReadFullDate();
+	//sDate Date;
+//	Date.Day = 31, Date.Month = 12, Date.Year = 2022;
+
+	cout << "\nDate After:\n";
+
+	Date = 	 IncreaseDateByOneDay(Date);
+	printf("\n01-Adding one day is: %02d/%02d/%d", Date.Day, Date.Month, Date.Year);
+
+	short Days = 10;
+	Date = IncreaseDateByXDays(Date, Days);
+	printf("\n02-Adding %d days is: %02d/%02d/%d", Days, Date.Day, Date.Month, Date.Year);
+
+	Date = IncreaseDateByOneWeek(Date);
+	printf("\n03-Adding one week is: %02d/%02d/%d", Date.Day, Date.Month, Date.Year);
+
+	short Weeks = 10;
+	Date = IncreaseDateByXWeeks(Date, Weeks);
+	printf("\n04-Adding %d weeks is: %02d/%02d/%d", Weeks, Date.Day, Date.Month, Date.Year);
+
+	Date = IncreaseDateByOneMonth(Date);
+	printf("\n05-Adding one month is: %02d/%02d/%d", Date.Day, Date.Month, Date.Year);
+
+	short Months = 5;
+	Date = IncreaseDateByXMonths(Date, Months);
+	printf("\n06-Adding %d months is: %02d/%02d/%d", Months, Date.Day, Date.Month, Date.Year);
+
+	Date = IncreaseDateByOneYear(Date);
+	printf("\n07-Adding one year is: %02d/%02d/%d", Date.Day, Date.Month, Date.Year);
+
+	short Years = 10;
+	Date = IncreaseDateByXYears(Date, Years);
+	printf("\n08-Adding %d Years is: %02d/%02d/%d", Years, Date.Day, Date.Month, Date.Year);
+	
+	Date = IncreaseDateByXYearsFaster(Date, Years);
+	printf("\n09-Adding %d Years (faster) is: %02d/%02d/%d", Years, Date.Day, Date.Month, Date.Year);
+
+	Date = IncreaseDateByOneDecade(Date);
+	printf("\n10-Adding one Decade is: %02d/%02d/%d", Date.Day, Date.Month, Date.Year);
+
+	short Decades = 10;
+	Date = IncreaseDateByXDecade(Date, Decades);
+	printf("\n11-Adding %d Decades is: %02d/%02d/%d", Decades, Date.Day, Date.Month, Date.Year);
+
+	Date = IncreaseDateByXDecadeFaster(Date, Decades);
+	printf("\n12-Adding %d Decades (faster) is: %02d/%02d/%d", Decades, Date.Day, Date.Month, Date.Year);
+	
+	Date = IncreaseDateByOneCentury(Date);
+	printf("\n13-Adding One Century is: %02d/%02d/%d", Date.Day, Date.Month, Date.Year);
+
+	Date = IncreaseDateByOneMillennium(Date);
+	printf("\n14-Adding One Millennium is: %02d/%02d/%d", Date.Day, Date.Month, Date.Year);
+
+	system("pause>0");
+
+	return 0;
+}
